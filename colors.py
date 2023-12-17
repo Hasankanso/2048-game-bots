@@ -1,10 +1,8 @@
-
-
 from abc import abstractmethod
 
 
 class TileColor():
-    
+
     def __init__(self, number_color : (int, int, int), background_color : (int, int, int)):
         self.number_color = None
         self.background_color = None
@@ -32,6 +30,5 @@ class TileColor():
         else:
             background_color = (251,96,71)
             number_color = (249,246,242)
-        
-        return TileColor(background_color=background_color, number_color=number_color)
 
+        return TileColor(background_color=background_color, number_color=number_color)
