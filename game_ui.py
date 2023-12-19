@@ -5,7 +5,7 @@ from player import Command, Player
 import threading
 
 class GameUI(Game):
-    def __init__(self, player: Player, board_size: int = 6):
+    def __init__(self, player: Player, board_size: int = 4):
         super().__init__(player, board_size)
         pygame.init()
         self.top_offset = 150
@@ -48,39 +48,47 @@ class GameUI(Game):
                     tile_pos = (self.gap_size + col * (self.tile_size + self.gap_size), self.top_offset + (self.tile_size + self.gap_size)*row + self.gap_size, self.tile_size, self.tile_size)
                     pygame.draw.rect(self.screen, (255, 204, 153), tile_pos)
 
-                    if tile.number == 0:
+                    if not tile.in_use():
                         numberText = ""
                     else:
-                        numberText = str(tile.number)
-                    
+                        numberText = str(tile.value())
+
                     text = self.font.render(numberText, True, (119, 110, 102))
                     text_rect = text.get_rect(center=(tile_pos[0] + self.tile_size / 2, tile_pos[1] + self.tile_size / 2))
                     self.screen.blit(text, text_rect)
 
     def receive_player_action(self):
+        new_tiles = 2
         while self.running:
+            self.new_tiles(new_tiles)
+            new_tiles = 0
             command = self.player.get_next_move(self)
-            if command == Command.TO_LEFT:
+            if command == Command.TO_LEFT and self.can_move_left():
+                new_tiles = 1
                 self.move_left()
-            elif command == Command.TO_RIGHT:
+            elif command == Command.TO_RIGHT and self.can_move_right():
+                new_tiles = 1
                 self.move_right()
-            elif command == Command.TO_UP:
+            elif command == Command.TO_UP and self.can_move_up():
+                new_tiles = 1
                 self.move_up()
-            elif command == Command.TO_DOWN:
+            elif command == Command.TO_DOWN and self.can_move_down():
+                new_tiles = 1
                 self.move_down()
-            elif command == Command.CLOSE:
+            elif command == Command.CLOSE or self.is_game_over():
                 self.running = False
             elif command == Command.RESTART:
+                new_tiles = 2
                 self.initialize_game()
 
     def run(self):
         input_thread = threading.Thread(target=self.receive_player_action, args=())
         input_thread.start()
         while self.running:
-            self.draw_player_name()     
+            self.draw_player_name()
             self.draw_score()
             self.draw_board()
             pygame.display.flip()
             self.clock.tick(60)
-            
+
         pygame.quit()
