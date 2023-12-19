@@ -13,7 +13,8 @@ class GameUI(Game):
         self.gaps_total_size = self.gap_size*(len(self.board) + 1)
         self.screen_size = 100*len(self.board)
         self.screen = pygame.display.set_mode((self.screen_size + self.gaps_total_size, self.screen_size + self.gaps_total_size + self.top_offset))
-        self.screen.fill((187,173,161))
+        self.background_color = (187,173,161) 
+        self.screen.fill(self.background_color)
         pygame.display.set_caption("My Game")
 
         self.clock = pygame.time.Clock()
@@ -81,10 +82,14 @@ class GameUI(Game):
                 new_tiles = 2
                 self.initialize_game()
 
+    def clear_screen(self):
+        self.screen.fill(self.background_color)
+
     def run(self):
         input_thread = threading.Thread(target=self.receive_player_action, args=())
         input_thread.start()
         while self.running:
+            self.clear_screen()
             self.draw_player_name()
             self.draw_score()
             self.draw_board()
