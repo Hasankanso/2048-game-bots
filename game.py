@@ -1,24 +1,37 @@
 # game.py
-from player import Player
+from player import Command, Player
 from tile import Tile
 from random import randrange, random
+import numpy as np
 
 class Game:
-    def __init__(self, player : Player, size : int = 4):
-        self.player = player
+    def __init__(self, size : int = 4, winning_score : int = 2048):
         self.initialize_game(size)
+        self.new_tiles_number = 2
+        self.new_tiles(self.new_tiles_number)
+        self.winning_score = winning_score
 
     def initialize_game(self, size: int = None):
+        self.new_tiles_number = 2
         if(size is None):
             size = len(self.board)
 
         self.board = [[Tile(y, x, 0) for y in range(size)] for x in range(size)]
         self._score = 0
 
+    def get_state(self):
+       state = []
+       for row in range(len(self.board)):
+            for col in range(len(self.board)):
+                state.append(self.board[row][col].normalize())
+       return np.array(state)
+    
     def is_game_over(self):
         for row in range(len(self.board)):
             for col in range(len(self.board)):
                 tile = self.board[row][col]
+                if tile.value() >= self.winning_score:
+                    return True
                 if not tile.in_use():
                     return False
         return True
@@ -174,6 +187,27 @@ class Game:
                         self.move_down(False)
                 row -= 1
         return False
+    
+    def step(self, command : Command):
+        self.new_tiles_number = 0
+        if command == Command.TO_LEFT and self.can_move_left():
+            self.new_tiles_number = 1
+            self.move_left()
+        elif command == Command.TO_RIGHT and self.can_move_right():
+            self.new_tiles_number = 1
+            self.move_right()
+        elif command == Command.TO_UP and self.can_move_up():
+            self.new_tiles_number = 1
+            self.move_up()
+        elif command == Command.TO_DOWN and self.can_move_down():
+            self.new_tiles_number = 1
+            self.move_down()
+        elif command == Command.CLOSE or self.is_game_over():
+            self.new_tiles_number = 0
+            self.running = False
+        elif command == Command.RESTART:
+            self.initialize_game()
+        self.new_tiles(self.new_tiles_number)
 
     def get_score(self):
         return self._score

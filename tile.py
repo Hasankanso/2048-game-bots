@@ -36,3 +36,6 @@ class Tile:
 
     def equal_with(self, other):
         return self.number == other.number
+
+    def normalize(self):
+        return self.number // 2

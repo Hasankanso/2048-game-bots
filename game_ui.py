@@ -6,7 +6,7 @@ import threading
 
 class GameUI(Game):
     def __init__(self, player: Player, board_size: int = 4):
-        super().__init__(player, board_size)
+        super().__init__(board_size)
         pygame.init()
         self.top_offset = 150
         self.gap_size = 10
@@ -59,28 +59,9 @@ class GameUI(Game):
                     self.screen.blit(text, text_rect)
 
     def receive_player_action(self):
-        new_tiles = 2
         while self.running:
-            self.new_tiles(new_tiles)
-            new_tiles = 0
             command = self.player.get_next_move(self)
-            if command == Command.TO_LEFT and self.can_move_left():
-                new_tiles = 1
-                self.move_left()
-            elif command == Command.TO_RIGHT and self.can_move_right():
-                new_tiles = 1
-                self.move_right()
-            elif command == Command.TO_UP and self.can_move_up():
-                new_tiles = 1
-                self.move_up()
-            elif command == Command.TO_DOWN and self.can_move_down():
-                new_tiles = 1
-                self.move_down()
-            elif command == Command.CLOSE or self.is_game_over():
-                self.running = False
-            elif command == Command.RESTART:
-                new_tiles = 2
-                self.initialize_game()
+            self.step(command)
 
     def clear_screen(self):
         self.screen.fill(self.background_color)
